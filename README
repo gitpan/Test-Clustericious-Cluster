@@ -1,0 +1,112 @@
+NAME
+    Test::Clustericious::Cluster - Test an imaginary beowulf cluster of
+    Clustericious services
+
+VERSION
+    version 0.03
+
+SYNOPSIS
+     use Test::Clustericious::Cluster;
+
+     my $cluster = Test::Clustericious::Cluster->new;
+     $cluster->create_cluster_ok('MyApp1', 'MyApp2');
+
+     my @urls = @{ $cluster->urls };
+     my $t = $cluster->t; # an instance of Test::Mojo
+ 
+     $t->get_ok("$url[0]/arbitrary_path");  # tests against MyApp1
+     $t->get_ok("$url[1]/another_path");    # tests against MyApp2
+
+DESCRIPTION
+    This module allows you to test an entire cluster of Clustericious
+    services (or just one or two). The only prerequisites are Mojolicious
+    and File::HomeDir, so you can mix and match Mojolicious and full
+    Clustericious apps and test how they interact.
+
+    If you are testing against Clustericious applications, it is important
+    to either use this module as early as possible, or use
+    File::HomeDir::Test as the very first module in your test, as testing
+    Clustericious configurations depend on the testing home directory being
+    setup by File::HomeDir::Test.
+
+CONSTRUCTOR
+  Test::Clustericious::Cluster->new( [ $t ] )
+    Optionally takes an instance of Test::Mojo as its argument. If not
+    provided, then a new one will be created.
+
+ATTRIBUTES
+  t
+    The instance of Test::Mojo used in testing.
+
+  urls
+    The URLs for the various services. Returned as an array ref.
+
+  apps
+    The application objects for the various services. Returned as an array
+    ref.
+
+  index
+    The index of the current app (used from within a Clustericious::Config
+    configuration.
+
+  url
+    The url of the current app (used from within a Clustericious::Config
+    configuration.
+
+  auth_url
+    The URL for the PlugAuth::Lite service, if one has been started.
+
+METHODS
+  $cluster->create_cluster_ok( @services )
+    Adds the given services to the test cluster. Each element in the
+    services array may be either
+
+    string
+        The string is taken to be the Mojolicious or Clustericious
+        application name. No configuration is created or passed into the
+        App.
+
+    list reference in the form: [ string, hashref ]
+        The string is taken to be the Mojolicious application name. The
+        hashref is the configuration passed into the constructor of the app.
+        This form should NOT be used for Clustericious apps (see the third
+        form).
+
+    list reference in the form: [ string, string ]
+        The first string is taken to be the Clustericious application name.
+        The second string is the configuration in either YAML or JSON format
+        (may include Mojo::Template templating in it, see
+        Clustericious::Config for details). This form requires that you have
+        Clustericous installed, and of course should not be used for
+        non-Clustericious Mojolicious applications.
+
+  $cluster->create_plugauth_lite_ok( %args )
+    Add a PlugAuth::Lite service to the test cluster. The %args are passed
+    directly into the PlugAuth::Lite constructor.
+
+    You can retrieve the URL for the PlugAuth::Lite service using the
+    "auth_url" attribute.
+
+  $cluster->stop_ok( $index, [ $test_name ])
+    Stop the given service. The service is specified by an index, the first
+    application when you created the cluster is 0, the second is 1, and so
+    on.
+
+  $cluster->start_ok( $index, [ $test_name ] )
+    Start the given service. The service is specified by an index, the first
+    application when you created the cluster is 0, the second is 1, and so
+    on.
+
+  $cluster->create_ua
+    Create a new instance of Mojo::UserAgent which can be used to connect to
+    nodes in the test cluster.
+
+AUTHOR
+    Graham Ollis <plicease@cpan.org>
+
+COPYRIGHT AND LICENSE
+    This software is copyright (c) 2013 by Graham Ollis.
+
+    This is free software; you can redistribute it and/or modify it under
+    the same terms as the Perl 5 programming language system itself.
+
