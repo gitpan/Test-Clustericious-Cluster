@@ -18,9 +18,10 @@ use Test::Mojo;
 use Mojo::Loader;
 use Mojo::UserAgent;
 use base qw( Test::Builder::Module );
+use Carp qw( croak );
 
 # ABSTRACT: Test an imaginary beowulf cluster of Clustericious services
-our $VERSION = '0.03'; # VERSION
+our $VERSION = '0.04'; # VERSION
 
 
 BEGIN { $ENV{MOJO_LOG_LEVEL} = 'fatal' }
@@ -148,6 +149,14 @@ sub create_cluster_ok
     my $data = $loader->data($caller, "lib/$file");
     return unless defined $data;
     open my $fh, '<', \$data;
+    
+    # fake out %INC because Mojo::Home freeks the heck
+    # out when it sees a CODEREF on some platforms
+    # in %INC
+    my $home = File::HomeDir->my_home;
+    mkdir "$home/mojohome" unless -d "$home/mojohome";
+    $INC{$file} = "$home/mojohome/$file";
+    
     return $fh;
   };
   
@@ -267,6 +276,11 @@ sub create_plugauth_lite_ok
   my $ok = 1;
   my $tb = __PACKAGE__->builder;
   
+  if(eval q{ use Clustericious; 1 } && ! eval q{ use Clustericious 0.9925; 1 })
+  {
+    croak "creat_plugin_lite_ok requires Clustericious 0.9925 or better (see Test::Clustericious::Test for details)";
+  }
+  
   if($self->{auth_ua} || $self->{auth_url})
   {
     $ok = 0;
@@ -372,7 +386,7 @@ Test::Clustericious::Cluster - Test an imaginary beowulf cluster of Clustericiou
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 SYNOPSIS
 
@@ -477,6 +491,24 @@ constructor.
 
 You can retrieve the URL for the L<PlugAuth::Lite> service
 using the C<auth_url> attribute.
+
+This feature requires L<PlugAuth::Lite> and L<Clustericious> 
+0.9925 or better, though neither are a prerequisite of this
+module.  If you are using this method you need to either require
+L<PlugAuth::Lite> and L<Clustericious> 0.9925 or better, or skip 
+your test in the event that the user has an earlier version. 
+For example:
+
+ use strict;
+ use warnings;
+ use Test::Clustericious::Cluster;
+ use Test::More;
+ BEGIN {
+   plan skip_all => 'test requires Clustericious 0.9925'
+     unless eval q{ use Clustericious 0.9925; 1 };
+   plan skip_all => 'test requires PlugAuth::Lite'
+     unless eval q{ use PlugAuth::Lite; 1 };
+ };
 
 =head2 $cluster-E<gt>stop_ok( $index, [ $test_name ])
 
