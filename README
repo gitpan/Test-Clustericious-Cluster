@@ -3,7 +3,7 @@ NAME
     Clustericious services
 
 VERSION
-    version 0.04
+    version 0.05
 
 SYNOPSIS
      use Test::Clustericious::Cluster;
@@ -20,8 +20,9 @@ SYNOPSIS
 DESCRIPTION
     This module allows you to test an entire cluster of Clustericious
     services (or just one or two). The only prerequisites are Mojolicious
-    and File::HomeDir, so you can mix and match Mojolicious and full
-    Clustericious apps and test how they interact.
+    and File::HomeDir, so you can mix and match Mojolicious,
+    Mojolicious::Lite and full Clustericious apps and test how they
+    interact.
 
     If you are testing against Clustericious applications, it is important
     to either use this module as early as possible, or use
@@ -30,9 +31,15 @@ DESCRIPTION
     setup by File::HomeDir::Test.
 
 CONSTRUCTOR
-  Test::Clustericious::Cluster->new( [ $t ] )
-    Optionally takes an instance of Test::Mojo as its argument. If not
-    provided, then a new one will be created.
+  Test::Clustericious::Cluster->new( %args )
+    Arguments:
+
+   t
+    The Test::Mojo object to use. If not provided, then a new one will be
+    created.
+
+   lite_path
+    List reference of paths to search for Mojolicious::Lite apps.
 
 ATTRIBUTES
   t
@@ -63,8 +70,14 @@ METHODS
 
     string
         The string is taken to be the Mojolicious or Clustericious
-        application name. No configuration is created or passed into the
-        App.
+        application class name. No configuration is created or passed into
+        the App.
+
+        This can also be the name of a Mojolicious::Lite application. The
+        PATH environment variable will be used to search for the lite
+        application. The script for the lite app must be executable. You can
+        specify additional directories to search using the "lite_path"
+        argument to the constructor.
 
     list reference in the form: [ string, hashref ]
         The string is taken to be the Mojolicious application name. The

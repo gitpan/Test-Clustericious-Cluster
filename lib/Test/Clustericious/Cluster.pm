@@ -21,7 +21,7 @@ use base qw( Test::Builder::Module );
 use Carp qw( croak );
 
 # ABSTRACT: Test an imaginary beowulf cluster of Clustericious services
-our $VERSION = '0.04'; # VERSION
+our $VERSION = '0.05'; # VERSION
 
 
 BEGIN { $ENV{MOJO_LOG_LEVEL} = 'fatal' }
@@ -30,14 +30,28 @@ BEGIN { $ENV{MOJO_LOG_LEVEL} = 'fatal' }
 sub new
 {
   my $class = shift;
-
-  my $t;
-  if(defined $_[0] && ref $_[0] && eval { $_[0]->isa('Test::Mojo') })
-  { $t = shift }
+  
+  my $args;
+  if(ref($_[0]) && eval { $_[0]->isa('Test::Mojo') })
+  {
+    # undocumented and deprecated
+    # you can pass in just an instance of Test::Mojo
+    $args = { t => $_[0] };
+  }
   else
-  { $t = Test::Mojo->new }
+  {
+    $args = ref $_[0] ? { %{ $_[0] } } : {@_};
+  }
+
+  my $t = $args->{t} // Test::Mojo->new;
   
   my $builder = __PACKAGE__->builder;
+  
+  my $sep = $^O eq 'MSWin32' ? ';' : ':';
+  my $lite_path = [ split $sep, $ENV{PATH} ];
+
+  $args->{lite_path} //= [];
+  unshift @$lite_path, ref($args->{lite_path}) ? @{ $args->{lite_path} } : ($args->{lite_path});
   
   bless { 
     t           => $t, 
@@ -50,6 +64,7 @@ sub new
     app_servers => [],
     auth_url    => '',
     extra_ua    => [$t->ua],
+    lite_path   => $lite_path,
   }, $class;
 }
 
@@ -76,8 +91,8 @@ sub auth_url { shift->{auth_url} }
 
 sub _add_app_to_ua
 {
-  use Carp qw( confess );
   my($self, $ua, $url, $app, $index) = @_;
+  #use Carp qw( confess );
   #confess "usage: \$cluster->_add_app_to_ua($ua, $url, $app)" unless $url;
   my $server = Mojo::Server::Daemon->new(
     ioloop => $ua->ioloop,
@@ -122,6 +137,25 @@ sub _add_ua
   }
   push @{ $self->{extra_ua} }, $ua;
   return $ua;
+}
+
+sub _load_lite_app
+{
+  my($app_path, $script) = @_;
+  state $index = 0;
+  eval '# line '. __LINE__ . ' "' . __FILE__ . qq("\n) . sprintf(q{
+    if(defined $script)
+    {
+      open my $fh, '>', $app_path;
+      print $fh $script;
+      close $fh;
+    }
+    package
+      Test::Clustericious::Cluster::LiteApp%s;
+    my $app = do $app_path;
+    if(!$app && (my $e = $@ || $!)) { die $e }
+    $app;
+  }, $index++);
 }
 
 sub create_cluster_ok
@@ -209,23 +243,33 @@ sub create_cluster_ok
     
     my $app;
     
-    if(my $script = $loader->data($caller, "script/$app_name"))
+    unless(defined $app)
     {
-      state $index = 0;
-      my $home = File::HomeDir->my_home;
-      $app = eval '# line '. __LINE__ . ' "' . __FILE__ . qq("\n) . sprintf(q{
+      if(my $script = $loader->data($caller, "script/$app_name"))
+      {
+        my $home = File::HomeDir->my_home;
         mkdir "$home/script" unless -d "$home/script";
-        open my $fh, '>', "$home/script/$app_name";
-        print $fh $script;
-        close $fh;
-        package
-          Test::Clustericious::Cluster::LiteApp%s;
-        my $app = do "$home/script/$app_name";
-        if(!$app && (my $e = $@ || $!)) { die $e }
-        $app;
-      }, $index++);
+        $app = _load_lite_app("$home/script/$app_name", $script);
+        if(my $error = $@)
+        { push @errors, [ $app_name, $error ] }
+      }
     }
-    else
+    
+    unless(defined $app)
+    {
+      foreach my $dir (@{ $self->{lite_path} })
+      {
+        if(-x "$dir/$app_name")
+        {
+          $app = _load_lite_app("$dir/$app_name");
+          if(my $error = $@)
+          { push @errors, [ $app_name, $error ] }
+          last;
+        }
+      }
+    }
+    
+    unless(defined $app) 
     {
       $app = eval qq{
         use $app_name;
@@ -238,17 +282,13 @@ sub create_cluster_ok
         }
         $app_name->new(\$config);
       };
+      if(my $error = $@)
+      { push @errors, [ $app_name, $error ] }
     }
-    if(my $error = $@)
-    {
-      push @errors, [ $app_name, $error ];
-      push @{ $self->apps }, undef;
-    }
-    else
-    {
-      push @{ $self->apps }, $app;
-      $self->_add_app($self->url, $app, $#{ $self->apps });
-    }
+
+    push @{ $self->apps }, $app;
+    if(defined $app)
+    { $self->_add_app($self->url, $app, $#{ $self->apps }); }
     
     if(eval { $app->isa('Clustericious::App') })
     {
@@ -386,7 +426,7 @@ Test::Clustericious::Cluster - Test an imaginary beowulf cluster of Clustericiou
 
 =head1 VERSION
 
-version 0.04
+version 0.05
 
 =head1 SYNOPSIS
 
@@ -405,8 +445,8 @@ version 0.04
 
 This module allows you to test an entire cluster of Clustericious services
 (or just one or two).  The only prerequisites are L<Mojolicious> and 
-L<File::HomeDir>, so you can mix and match Mojolicious and full Clustericious
-apps and test how they interact.
+L<File::HomeDir>, so you can mix and match L<Mojolicious>, L<Mojolicious::Lite>
+and full L<Clustericious> apps and test how they interact.
 
 If you are testing against Clustericious applications, it is important to
 either use this module as early as possible, or use L<File::HomeDir::Test>
@@ -415,10 +455,19 @@ depend on the testing home directory being setup by L<File::HomeDir::Test>.
 
 =head1 CONSTRUCTOR
 
-=head2 Test::Clustericious::Cluster->new( [ $t ] )
+=head2 Test::Clustericious::Cluster->new( %args )
 
-Optionally takes an instance of Test::Mojo as its argument.
+Arguments:
+
+=head3 t
+
+The Test::Mojo object to use.
 If not provided, then a new one will be created.
+
+=head3 lite_path
+
+List reference of paths to search for L<Mojolicious::Lite>
+apps.
 
 =head1 ATTRIBUTES
 
@@ -462,8 +511,14 @@ Each element in the services array may be either
 =item string
 
 The string is taken to be the L<Mojolicious> or L<Clustericious>
-application name.  No configuration is created or passed into
+application class name.  No configuration is created or passed into
 the App.
+
+This can also be the name of a L<Mojolicious::Lite> application.
+The PATH environment variable will be used to search for the
+lite application.  The script for the lite app must be executable.
+You can specify additional directories to search using the
+C<lite_path> argument to the constructor.
 
 =item list reference in the form: [ string, hashref ]
 

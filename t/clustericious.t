@@ -10,9 +10,6 @@ BEGIN {
 }
 plan tests => 15;
 
-my $loader = Mojo::Loader->new;
-$loader->load('main');
-
 create_config_ok 'common';
 
 my $cluster = Test::Clustericious::Cluster->new;

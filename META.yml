@@ -21,4 +21,4 @@ resources:
   bugtracker: https://github.com/plicease/test-clustericious-cluster/issues
   homepage: http://perl.wdlabs.com/Test-Clustericious-Cluster/
   repository: git://github.com/plicease/test-clustericious-cluster.git
-version: 0.04
+version: 0.05
