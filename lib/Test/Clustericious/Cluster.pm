@@ -21,7 +21,7 @@ use base qw( Test::Builder::Module );
 use Carp qw( croak );
 
 # ABSTRACT: Test an imaginary beowulf cluster of Clustericious services
-our $VERSION = '0.05'; # VERSION
+our $VERSION = '0.06'; # VERSION
 
 
 BEGIN { $ENV{MOJO_LOG_LEVEL} = 'fatal' }
@@ -88,6 +88,37 @@ sub url { shift->{url} }
 
 sub auth_url { shift->{auth_url} }
 
+
+our $inc_hook;
+
+BEGIN {
+  unshift @INC, sub {
+    my($self, $file) = @_;
+
+    $DB::single = 1;  
+    return $inc_hook->($self, $file) if $inc_hook;
+   
+    state $loader;
+    unless(defined $loader)
+    {
+      $loader = Mojo::Loader->new;
+      $loader->load('main');
+    }
+  
+    my $data = $loader->data('main', "lib/$file");
+    return unless defined $data;
+    open my $fh, '<', \$data;
+  
+    # fake out %INC because Mojo::Home freeks the heck
+    # out when it sees a CODEREF on some platforms
+    # in %INC
+    my $home = File::HomeDir->my_home;
+    mkdir "$home/mojohome" unless -d "$home/mojohome";
+    $INC{$file} = "$home/mojohome/$file";
+  
+    return $fh;
+  };
+};
 
 sub _add_app_to_ua
 {
@@ -178,7 +209,7 @@ sub create_cluster_ok
   my $caller = caller;
   $loader->load($caller);
 
-  push @INC, sub {
+  local $inc_hook = sub {
     my($self, $file) = @_;
     my $data = $loader->data($caller, "lib/$file");
     return unless defined $data;
@@ -225,14 +256,30 @@ sub create_cluster_ok
           $has_clustericious_config = 1;
           my $helper = sub { return $self };
         
-          require Clustericious::Config::Plugin;
+          state $class;
+          
+          unless(defined $class)
+          {
+            if(eval q{ require Clustericious::Config::Helpers; 1})
+            {
+              $class = 'Clustericious::Config::Helpers';
+              push @Clustericious::Config::Helpers::EXPORT, 'cluster';
+            }
+            else
+            {
+              require Clustericious::Config::Plugin;
+              $class = 'Clustericious::Config::Plugin';
+              push @Clustericious::Config::Plugin::EXPORT, 'cluster';
+            }
+          }
+        
           do {
+            # there are a multitude of sins here aren't there?
             no warnings 'redefine';
             no warnings 'once';
-            *Clustericious::Config::Plugin::cluster = $helper;
+            no strict 'refs';
+            *{join '::', $class, 'cluster'} = $helper;
           };
-          push @Clustericious::Config::Plugin::EXPORT, 'cluster'
-            unless grep { $_ eq 'cluster' } @Clustericious::Config::Plugin::EXPORT;
         }
       }
     }
@@ -426,20 +473,30 @@ Test::Clustericious::Cluster - Test an imaginary beowulf cluster of Clustericiou
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
 =head1 SYNOPSIS
 
  use Test::Clustericious::Cluster;
-
+ 
+ # suppose MyApp1 isa Clustericious::App and
+ # MyApp2 is a Mojolicious app
  my $cluster = Test::Clustericious::Cluster->new;
  $cluster->create_cluster_ok('MyApp1', 'MyApp2');
-
+ 
  my @urls = @{ $cluster->urls };
  my $t = $cluster->t; # an instance of Test::Mojo
  
  $t->get_ok("$url[0]/arbitrary_path");  # tests against MyApp1
  $t->get_ok("$url[1]/another_path");    # tests against MyApp2
+ 
+ __DATA__
+ 
+ @@ etc/MyApp1.conf
+ ---
+ # Clustericious configuration 
+ url <%= cluster->url %>
+ url_for_my_app2: <%= cluster->urls->[1] %>
 
 =head1 DESCRIPTION
 
@@ -452,6 +509,108 @@ If you are testing against Clustericious applications, it is important to
 either use this module as early as possible, or use L<File::HomeDir::Test>
 as the very first module in your test, as testing Clustericious configurations
 depend on the testing home directory being setup by L<File::HomeDir::Test>.
+
+In addition to passing L<Clustericious> configurations into the
+C<create_cluster_ok> method as describe below, you can include configuration
+in the data section of your test script.  The configuration files use 
+L<Clustericious::Config>, so you can use L<Mojo::Template> directives to 
+embed Perl code in the configuration.  You can access the L<Test::Clustericious::Cluster>
+instance from within the configuration using the C<cluster> function, which
+can be useful for getting the URL for the your and other service URLs.
+
+ __DATA__
+ 
+ @@ etc/Foo.conf
+ ---
+ url <%= cluster->url %>
+ % # because YAML is (mostly) a super set of JSON you can
+ % # convert perl structures into config items using json
+ % # function:
+ % # (json method requires Clustericious::Config 0.25)
+ other_urls: <%= json [ @{ cluster->urls } ] %>
+
+You can also put perl code in the data section of your test file, which
+can be useful if there isn't a another good place to put it.  This
+example embeds as L<Mojolicious> app "FooApp" and a L<Clustericious::App>
+"BarApp" into the test script itself:
+
+ ...
+ $cluster->create_cluster_ok('FooApp', 'BarApp');
+ ...
+ 
+ __DATA__
+ 
+ @@ lib/FooApp.pm
+ package FooApp;
+ 
+ # FooApp is a Mojolicious app
+ 
+ use Mojo::Base qw( Mojolicious );
+ 
+ sub startup
+ {
+   shift->routes->get('/' => sub { shift->render(text => 'hello there from foo') });
+ }
+ 
+ 1;
+ 
+ @@ lib/BarApp.pm
+ package BarApp;
+ 
+ # BarApp is a Clustericious::App
+ 
+ use strict;
+ use warnings;
+ use base qw( Clustericious::App );
+ 
+ 1;
+ 
+ @@ lib/BarApp/Routes.pm
+ package BarApp::Routes;
+ 
+ use strict;
+ use warnings;
+ use Clustericious::RouteBuilder;
+ 
+ get '/' => sub { shift->render(text => 'hello there from bar') };
+ 
+ 1;
+
+These examples are full apps, but you could also use this
+feature to implement mocks to test parts of your program
+that use resources that aren't easily available during
+unit testing, or may change from host to host.  Here is an
+example that mocks parts of L<Net::hostent>:
+
+ use strict;
+ use warnings;
+ use Test::Clustericious::Cluster;
+ use Test::More tests => 2;
+ 
+ use_ok('Net::hostent');
+ is gethost('bar')->name, 'foo.example.com', 'gethost(bar).name = foo.example.com';
+ 
+ __DATA__
+ 
+ @@ lib/Net/hostent.pm
+ package Net::hostent;
+ 
+ use strict;
+ use warnings;
+ use base qw( Exporter );
+ our @EXPORT = qw( gethost );
+ 
+ sub gethost
+ {
+   my $input_name = shift;
+   return unless $input_name =~ /^(foo|bar|baz|foo.example.com)$/;
+   bless {}, 'Net::hostent';
+ }
+ 
+ sub name { 'foo.example.com' }
+ sub aliases { qw( foo.example.com foo bar baz ) }
+ 
+ 1;
 
 =head1 CONSTRUCTOR
 

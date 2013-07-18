@@ -16,6 +16,8 @@ t/clustericious2.t
 t/lite.t
 t/lite_path.t
 t/lite_path_real.t
+t/mock.t
+t/mock2.t
 t/mojo.t
 t/mojo_config.t
 t/nested.t
