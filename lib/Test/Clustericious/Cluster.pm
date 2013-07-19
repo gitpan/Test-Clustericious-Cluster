@@ -21,7 +21,7 @@ use base qw( Test::Builder::Module );
 use Carp qw( croak );
 
 # ABSTRACT: Test an imaginary beowulf cluster of Clustericious services
-our $VERSION = '0.06'; # VERSION
+our $VERSION = '0.07'; # VERSION
 
 
 BEGIN { $ENV{MOJO_LOG_LEVEL} = 'fatal' }
@@ -95,7 +95,6 @@ BEGIN {
   unshift @INC, sub {
     my($self, $file) = @_;
 
-    $DB::single = 1;  
     return $inc_hook->($self, $file) if $inc_hook;
    
     state $loader;
@@ -306,7 +305,8 @@ sub create_cluster_ok
     {
       foreach my $dir (@{ $self->{lite_path} })
       {
-        if(-x "$dir/$app_name")
+        if(($^O eq 'MSWin32' && -e "$dir/$app_name")
+        || (-x "$dir/$app_name"))
         {
           $app = _load_lite_app("$dir/$app_name");
           if(my $error = $@)
@@ -473,7 +473,7 @@ Test::Clustericious::Cluster - Test an imaginary beowulf cluster of Clustericiou
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 
