@@ -3,7 +3,7 @@ NAME
     Clustericious services
 
 VERSION
-    version 0.07
+    version 0.08
 
 SYNOPSIS
      use Test::Clustericious::Cluster;
