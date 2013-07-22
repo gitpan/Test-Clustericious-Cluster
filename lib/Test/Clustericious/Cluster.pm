@@ -21,7 +21,7 @@ use base qw( Test::Builder::Module );
 use Carp qw( croak );
 
 # ABSTRACT: Test an imaginary beowulf cluster of Clustericious services
-our $VERSION = '0.08'; # VERSION
+our $VERSION = '0.09'; # VERSION
 
 
 BEGIN { $ENV{MOJO_LOG_LEVEL} = 'fatal' }
@@ -172,6 +172,7 @@ sub _add_ua
 sub _load_lite_app
 {
   my($app_path, $script) = @_;
+  local @ARGV = ( eval => 'app');
   state $index = 0;
   eval '# line '. __LINE__ . ' "' . __FILE__ . qq("\n) . sprintf(q{
     if(defined $script)
@@ -484,7 +485,7 @@ Test::Clustericious::Cluster - Test an imaginary beowulf cluster of Clustericiou
 
 =head1 VERSION
 
-version 0.08
+version 0.09
 
 =head1 SYNOPSIS
 
