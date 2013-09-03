@@ -1,5 +1,9 @@
 Revision history for Test-Clustericious-Cluster
 
+0.10      2013-09-03 18:14:15 -0400
+  - Clustericious specific tests require Clustericious 0.9930
+    (they are skipped if not installed)
+
 0.09      2013-07-22 06:30:30 America/New_York
   - make it work with a mojo lite app that returns app->start
 

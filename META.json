@@ -4,7 +4,7 @@
       "Graham Ollis <plicease@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300035, CPAN::Meta::Converter version 2.131560",
+   "generated_by" : "Dist::Zilla version 4.300037, CPAN::Meta::Converter version 2.132140",
    "license" : [
       "perl_5"
    ],
@@ -44,6 +44,6 @@
          "web" : "https://github.com/plicease/test-clustericious-cluster"
       }
    },
-   "version" : "0.09"
+   "version" : "0.10"
 }
 
