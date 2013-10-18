@@ -10,6 +10,7 @@ README
 dist.ini
 lib/Test/Clustericious/Cluster.pm
 t/00_diag.t
+t/00_diag.txt
 t/client.t
 t/clustericious.t
 t/clustericious2.t
@@ -35,3 +36,4 @@ xt/release/pod_spelling_common.t
 xt/release/pod_spelling_system.t
 xt/release/release.yml
 xt/release/strict.t
+xt/release/version.t

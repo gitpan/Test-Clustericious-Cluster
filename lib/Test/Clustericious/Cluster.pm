@@ -21,7 +21,7 @@ use base qw( Test::Builder::Module );
 use Carp qw( croak );
 
 # ABSTRACT: Test an imaginary beowulf cluster of Clustericious services
-our $VERSION = '0.10'; # VERSION
+our $VERSION = '0.11'; # VERSION
 
 
 BEGIN { $ENV{MOJO_LOG_LEVEL} = 'fatal' }
@@ -45,8 +45,6 @@ sub new
 
   my $t = $args->{t} // Test::Mojo->new;
   
-  my $builder = __PACKAGE__->builder;
-  
   my $sep = $^O eq 'MSWin32' ? ';' : ':';
   my $lite_path = [ split $sep, $ENV{PATH} ];
 
@@ -55,7 +53,6 @@ sub new
   
   bless { 
     t           => $t, 
-    builder     => $builder, 
     urls        => [], 
     apps        => [], 
     index       => -1,
@@ -67,8 +64,6 @@ sub new
     lite_path   => $lite_path,
   }, $class;
 }
-
-sub _builder { shift->{builder} }
 
 
 sub t { shift->{t} }
@@ -485,7 +480,7 @@ Test::Clustericious::Cluster - Test an imaginary beowulf cluster of Clustericiou
 
 =head1 VERSION
 
-version 0.10
+version 0.11
 
 =head1 SYNOPSIS
 
