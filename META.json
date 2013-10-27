@@ -26,10 +26,10 @@
          "requires" : {
             "File::HomeDir" : "0.91",
             "Mojolicious" : "3.86",
-            "perl" : "v5.10.0"
+            "perl" : "5.010"
          },
          "suggests" : {
-            "Clustericious" : "0.9930",
+            "Clustericious" : "0.9931",
             "Clustericious::Client" : "0",
             "Clustericious::Config" : "0.22",
             "Clustericious::Log" : "0"
@@ -53,6 +53,6 @@
          "web" : "https://github.com/plicease/test-clustericious-cluster"
       }
    },
-   "version" : "0.11"
+   "version" : "0.12"
 }
 
