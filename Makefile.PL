@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use 5.010000;
+use 5.010;
 
 use ExtUtils::MakeMaker 6.30;
 
@@ -25,9 +25,10 @@ my %WriteMakefileArgs = (
     "Mojolicious" => "3.86"
   },
   "TEST_REQUIRES" => {
+    "Carp::Always" => 0,
     "Test::More" => 0
   },
-  "VERSION" => "0.12_01",
+  "VERSION" => "0.12_02",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -35,6 +36,7 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
+  "Carp::Always" => 0,
   "File::HomeDir" => "0.91",
   "Mojolicious" => "3.86",
   "Test::More" => 0
