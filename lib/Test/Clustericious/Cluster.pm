@@ -21,7 +21,7 @@ use base qw( Test::Builder::Module );
 use Carp qw( croak );
 
 # ABSTRACT: Test an imaginary beowulf cluster of Clustericious services
-our $VERSION = '0.12_02'; # VERSION
+our $VERSION = '0.12_03'; # VERSION
 
 
 BEGIN { $ENV{MOJO_LOG_LEVEL} = 'fatal' }
@@ -419,6 +419,7 @@ sub stop_ok
   {
     my $app_name = ref $app;
     $test_name //= "stop service $app_name ($index)";
+    $_->stop for @{ $self->{app_servers}->[$index] };
     eval { @{ $self->{app_servers}->[$index] } = () };
     $error = $@;
     $ok = 0 if $error;
@@ -490,7 +491,7 @@ Test::Clustericious::Cluster - Test an imaginary beowulf cluster of Clustericiou
 
 =head1 VERSION
 
-version 0.12_02
+version 0.12_03
 
 =head1 SYNOPSIS
 

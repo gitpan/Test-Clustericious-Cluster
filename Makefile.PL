@@ -28,7 +28,7 @@ my %WriteMakefileArgs = (
     "Carp::Always" => 0,
     "Test::More" => 0
   },
-  "VERSION" => "0.12_02",
+  "VERSION" => "0.12_03",
   "test" => {
     "TESTS" => "t/*.t"
   }

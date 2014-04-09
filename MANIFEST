@@ -12,6 +12,7 @@ lib/Test/Clustericious/Cluster.pm
 t/00_diag.pre.txt
 t/00_diag.t
 t/00_diag.txt
+t/01_diag.t
 t/client.t
 t/clustericious.t
 t/clustericious2.t
