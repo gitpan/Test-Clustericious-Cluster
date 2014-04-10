@@ -19,9 +19,9 @@ recommends:
 requires:
   File::HomeDir: '0.91'
   Mojolicious: '3.86'
-  perl: '5.010'
+  perl: v5.10.0
 resources:
   bugtracker: https://github.com/plicease/test-clustericious-cluster/issues
   homepage: http://perl.wdlabs.com/Test-Clustericious-Cluster/
   repository: git://github.com/plicease/test-clustericious-cluster.git
-version: 0.12_03
+version: 0.12_04
