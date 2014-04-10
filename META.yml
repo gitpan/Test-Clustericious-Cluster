@@ -4,9 +4,10 @@ author:
   - 'Graham Ollis <plicease@cpan.org>'
 build_requires:
   Carp::Always: '0'
+  Module::Build: '0.3601'
   Test::More: '0'
 configure_requires:
-  ExtUtils::MakeMaker: '6.30'
+  Module::Build: '0.3601'
 dynamic_config: 0
 generated_by: 'Dist::Zilla version 5.015, CPAN::Meta::Converter version 2.140640'
 license: perl
@@ -19,9 +20,9 @@ recommends:
 requires:
   File::HomeDir: '0.91'
   Mojolicious: '3.86'
-  perl: v5.10.0
+  perl: '5.010'
 resources:
   bugtracker: https://github.com/plicease/test-clustericious-cluster/issues
   homepage: http://perl.wdlabs.com/Test-Clustericious-Cluster/
   repository: git://github.com/plicease/test-clustericious-cluster.git
-version: 0.12_04
+version: 0.12_05
