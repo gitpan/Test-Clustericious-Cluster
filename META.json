@@ -43,7 +43,6 @@
       "test" : {
          "requires" : {
             "Carp::Always::Dump" : "0",
-            "Devel::Hide" : "0",
             "Test::More" : "0"
          }
       }
@@ -60,6 +59,6 @@
          "web" : "https://github.com/plicease/test-clustericious-cluster"
       }
    },
-   "version" : "0.12_06"
+   "version" : "0.12_07"
 }
 
