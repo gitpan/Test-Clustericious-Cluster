@@ -31,7 +31,7 @@
          "requires" : {
             "File::HomeDir" : "0.91",
             "Mojolicious" : "3.86",
-            "perl" : "5.010"
+            "perl" : "v5.10.0"
          },
          "suggests" : {
             "Clustericious" : "0.9931",
@@ -42,7 +42,8 @@
       },
       "test" : {
          "requires" : {
-            "Carp::Always" : "0",
+            "Carp::Always::Dump" : "0",
+            "Devel::Hide" : "0",
             "Test::More" : "0"
          }
       }
@@ -59,6 +60,6 @@
          "web" : "https://github.com/plicease/test-clustericious-cluster"
       }
    },
-   "version" : "0.12_05"
+   "version" : "0.12_06"
 }
 

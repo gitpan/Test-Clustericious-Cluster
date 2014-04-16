@@ -3,7 +3,8 @@ abstract: 'Test an imaginary beowulf cluster of Clustericious services'
 author:
   - 'Graham Ollis <plicease@cpan.org>'
 build_requires:
-  Carp::Always: '0'
+  Carp::Always::Dump: '0'
+  Devel::Hide: '0'
   Module::Build: '0.3601'
   Test::More: '0'
 configure_requires:
@@ -20,9 +21,9 @@ recommends:
 requires:
   File::HomeDir: '0.91'
   Mojolicious: '3.86'
-  perl: '5.010'
+  perl: v5.10.0
 resources:
   bugtracker: https://github.com/plicease/test-clustericious-cluster/issues
   homepage: http://perl.wdlabs.com/Test-Clustericious-Cluster/
   repository: git://github.com/plicease/test-clustericious-cluster.git
-version: 0.12_05
+version: 0.12_06
