@@ -18,7 +18,7 @@ my %module_build_args = (
     "Graham Ollis <plicease\@cpan.org>"
   ],
   "dist_name" => "Test-Clustericious-Cluster",
-  "dist_version" => "0.12_07",
+  "dist_version" => "0.14",
   "license" => "perl",
   "module_name" => "Test::Clustericious::Cluster",
   "recommends" => {
@@ -32,14 +32,12 @@ my %module_build_args = (
   },
   "script_files" => [],
   "test_requires" => {
-    "Carp::Always::Dump" => 0,
     "Test::More" => 0
   }
 );
 
 
 my %fallback_build_requires = (
-  "Carp::Always::Dump" => 0,
   "Module::Build" => "0.3601",
   "Test::More" => 0
 );

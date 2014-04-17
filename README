@@ -5,7 +5,7 @@ NAME
 
 VERSION
 
-    version 0.12_07
+    version 0.14
 
 SYNOPSIS
 
@@ -148,7 +148,9 @@ DESCRIPTION
 
 CONSTRUCTOR
 
- Test::Clustericious::Cluster->new( %args )
+ new
+
+     my $cluster = Test::Clustericious::Cluster->new( %args )
 
     Arguments:
 
@@ -165,34 +167,48 @@ ATTRIBUTES
 
  t
 
+     my $t = $cluster->t;
+
     The instance of Test::Mojo used in testing.
 
  urls
 
+     my @urls = @{ $cluster->urls };
+
     The URLs for the various services. Returned as an array ref.
 
  apps
+
+     my @apps = @{ $cluster->apps };
 
     The application objects for the various services. Returned as an array
     ref.
 
  index
 
+     my $index = $cluster->index;
+
     The index of the current app (used from within a Clustericious::Config
     configuration.
 
  url
+
+     my $url = $cluster->url;
 
     The url of the current app (used from within a Clustericious::Config
     configuration.
 
  auth_url
 
+     my $url = $cluster->auth_url;
+
     The URL for the PlugAuth::Lite service, if one has been started.
 
 METHODS
 
- $cluster->create_cluster_ok( @services )
+ create_cluster_ok
+
+     $cluster->create_cluster_ok( @services )
 
     Adds the given services to the test cluster. Each element in the
     services array may be either
@@ -225,7 +241,9 @@ METHODS
       Clustericous installed, and of course should not be used for
       non-Clustericious Mojolicious applications.
 
- $cluster->create_plugauth_lite_ok( %args )
+ create_plugauth_lite_ok
+
+     $cluster->create_plugauth_lite_ok( %args )
 
     Add a PlugAuth::Lite service to the test cluster. The %args are passed
     directly into the PlugAuth::Lite constructor.
@@ -250,22 +268,50 @@ METHODS
          unless eval q{ use PlugAuth::Lite; 1 };
      };
 
- $cluster->stop_ok( $index, [ $test_name ])
+ stop_ok
+
+     $cluster->stop_ok( $index );
+     $cluster->stop_ok( $index, $test_name);
 
     Stop the given service. The service is specified by an index, the first
     application when you created the cluster is 0, the second is 1, and so
     on.
 
- $cluster->start_ok( $index, [ $test_name ] )
+    See CAVEATS below on interactions with IPv6 or TLS/SSL.
+
+ start_ok
+
+      $cluster->start_ok( $index );
+      $cluster->start_ok( $index, $test_name );
 
     Start the given service. The service is specified by an index, the
     first application when you created the cluster is 0, the second is 1,
     and so on.
 
- $cluster->create_ua
+ create_ua
+
+     my $ua = $cluster->create_ua;
 
     Create a new instance of Mojo::UserAgent which can be used to connect
     to nodes in the test cluster.
+
+CAVEATS
+
+    Some combination of Mojolicious, FreeBSD, IPv6 and TLS/SSL seem to
+    react badly to the use of stop_ok. The work around is to turn IPv6 and
+    TLS/SSL off in the beginning of any tests that uses stop_ok your test
+    like thus:
+
+     use strict;
+     use warnings;
+     BEGIN { $ENV{MOJO_NO_IPV6} = 1; $ENV{MOJO_NO_TLS} = 1; }
+     use Test::Clustericious::Cluster;
+
+    A proper fix would be desirable, see
+
+    https://github.com/plicease/Test-Clustericious-Cluster/issues/3
+
+    If you want to help.
 
 AUTHOR
 

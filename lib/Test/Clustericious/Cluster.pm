@@ -21,7 +21,7 @@ use base qw( Test::Builder::Module );
 use Carp qw( croak );
 
 # ABSTRACT: Test an imaginary beowulf cluster of Clustericious services
-our $VERSION = '0.12_07'; # VERSION
+our $VERSION = '0.14'; # VERSION
 
 
 BEGIN { $ENV{MOJO_LOG_LEVEL} = 'fatal' }
@@ -491,7 +491,7 @@ Test::Clustericious::Cluster - Test an imaginary beowulf cluster of Clustericiou
 
 =head1 VERSION
 
-version 0.12_07
+version 0.14
 
 =head1 SYNOPSIS
 
@@ -632,7 +632,9 @@ example that mocks parts of L<Net::hostent>:
 
 =head1 CONSTRUCTOR
 
-=head2 Test::Clustericious::Cluster->new( %args )
+=head2 new
+
+ my $cluster = Test::Clustericious::Cluster->new( %args )
 
 Arguments:
 
@@ -650,35 +652,49 @@ apps.
 
 =head2 t
 
+ my $t = $cluster->t;
+
 The instance of Test::Mojo used in testing.
 
 =head2 urls
+
+ my @urls = @{ $cluster->urls };
 
 The URLs for the various services.
 Returned as an array ref.
 
 =head2 apps
 
+ my @apps = @{ $cluster->apps };
+
 The application objects for the various services.
 Returned as an array ref.
 
 =head2 index
+
+ my $index = $cluster->index;
 
 The index of the current app (used from within a 
 L<Clustericious::Config> configuration.
 
 =head2 url
 
+ my $url = $cluster->url;
+
 The url of the current app (used from within a
 L<Clustericious::Config> configuration.
 
 =head2 auth_url
 
+ my $url = $cluster->auth_url;
+
 The URL for the PlugAuth::Lite service, if one has been started.
 
 =head1 METHODS
 
-=head2 $cluster-E<gt>create_cluster_ok( @services )
+=head2 create_cluster_ok
+
+ $cluster->create_cluster_ok( @services )
 
 Adds the given services to the test cluster.
 Each element in the services array may be either
@@ -715,7 +731,9 @@ not be used for non-L<Clustericious> L<Mojolicious> applications.
 
 =back
 
-=head2 $cluster-E<gt>create_plugauth_lite_ok( %args )
+=head2 create_plugauth_lite_ok
+
+ $cluster->create_plugauth_lite_ok( %args )
 
 Add a L<PlugAuth::Lite> service to the test cluster.  The
 C<%args> are passed directly into the L<PlugAuth::Lite>
@@ -742,22 +760,54 @@ For example:
      unless eval q{ use PlugAuth::Lite; 1 };
  };
 
-=head2 $cluster-E<gt>stop_ok( $index, [ $test_name ])
+=head2 stop_ok
+
+ $cluster->stop_ok( $index );
+ $cluster->stop_ok( $index, $test_name);
 
 Stop the given service.  The service is specified by 
 an index, the first application when you created the
 cluster is 0, the second is 1, and so on.
 
-=head2 $cluster-E<gt>start_ok( $index, [ $test_name ] )
+See L<CAVEATS|Test::Clustericious::Cluster#CAVEATS>
+below on interactions with IPv6 or TLS/SSL.
+
+=head2 start_ok
+
+  $cluster->start_ok( $index );
+  $cluster->start_ok( $index, $test_name );
 
 Start the given service.  The service is specified by 
 an index, the first application when you created the
 cluster is 0, the second is 1, and so on.
 
-=head2 $cluster-E<gt>create_ua
+=head2 create_ua
+
+ my $ua = $cluster->create_ua;
 
 Create a new instance of Mojo::UserAgent which can be used
 to connect to nodes in the test cluster.
+
+=head1 CAVEATS
+
+Some combination of Mojolicious, FreeBSD, IPv6 and TLS/SSL
+seem to react badly to the use of 
+L<stop_ok|Test::Clustericious::Cluster#stop_ok>.  The work
+around is to turn IPv6 and TLS/SSL off in the beginning
+of any tests that uses stop_ok your test like thus:
+
+ use strict;
+ use warnings;
+ BEGIN { $ENV{MOJO_NO_IPV6} = 1; $ENV{MOJO_NO_TLS} = 1; }
+ use Test::Clustericious::Cluster;
+
+A proper fix would be desirable, see 
+
+https://github.com/plicease/Test-Clustericious-Cluster/issues/3
+
+If you want to help.
+
+=cut
 
 =head1 AUTHOR
 
