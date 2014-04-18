@@ -21,7 +21,7 @@ use base qw( Test::Builder::Module );
 use Carp qw( croak );
 
 # ABSTRACT: Test an imaginary beowulf cluster of Clustericious services
-our $VERSION = '0.14'; # VERSION
+our $VERSION = '0.14_01'; # VERSION
 
 
 BEGIN { $ENV{MOJO_LOG_LEVEL} = 'fatal' }
@@ -491,7 +491,7 @@ Test::Clustericious::Cluster - Test an imaginary beowulf cluster of Clustericiou
 
 =head1 VERSION
 
-version 0.14
+version 0.14_01
 
 =head1 SYNOPSIS
 
