@@ -2,7 +2,7 @@ package Test::Clustericious::Cluster;
 
 use strict;
 use warnings;
-use v5.10;
+use 5.010001;
 
 BEGIN {
   unless($INC{'File/HomeDir/Test.pm'})
@@ -21,7 +21,7 @@ use base qw( Test::Builder::Module );
 use Carp qw( croak );
 
 # ABSTRACT: Test an imaginary beowulf cluster of Clustericious services
-our $VERSION = '0.16'; # VERSION
+our $VERSION = '0.17'; # VERSION
 
 
 BEGIN { $ENV{MOJO_LOG_LEVEL} = 'fatal' }
@@ -500,7 +500,7 @@ Test::Clustericious::Cluster - Test an imaginary beowulf cluster of Clustericiou
 
 =head1 VERSION
 
-version 0.16
+version 0.17
 
 =head1 SYNOPSIS
 

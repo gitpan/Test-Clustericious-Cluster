@@ -1,5 +1,9 @@
 Revision history for Test-Clustericious-Cluster
 
+0.17      2014-12-19 12:45:10 -0500
+  - merge former optional dependency PlugAuth::Lite into this distribution
+  - Do not use Mojo::JSON deprecated OO interface
+
 0.16      2014-05-30 09:39:01 -0400
   - Mojolicious 5.x compatability
 

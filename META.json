@@ -4,7 +4,7 @@
       "Graham Ollis <plicease@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 5.019, CPAN::Meta::Converter version 2.141170",
+   "generated_by" : "Dist::Zilla version 5.027, CPAN::Meta::Converter version 2.143240",
    "license" : [
       "perl_5"
    ],
@@ -16,12 +16,13 @@
    "prereqs" : {
       "build" : {
          "requires" : {
-            "Module::Build" : "0.3601"
+            "Module::Build" : "0.28"
          }
       },
       "configure" : {
          "requires" : {
-            "Module::Build" : "0.3601"
+            "Module::Build" : "0.28",
+            "perl" : "5.006"
          }
       },
       "runtime" : {
@@ -30,8 +31,9 @@
          },
          "requires" : {
             "File::HomeDir" : "0.91",
-            "Mojolicious" : "3.86",
-            "perl" : "v5.10.0"
+            "Mojo::ByteStream" : "0",
+            "Mojolicious" : "5.0",
+            "perl" : "5.010001"
          },
          "suggests" : {
             "Clustericious" : "0.9931",
@@ -41,23 +43,28 @@
          }
       },
       "test" : {
+         "recommends" : {
+            "EV" : "0"
+         },
          "requires" : {
-            "Test::More" : "0"
+            "Mojolicious::Lite" : "0",
+            "Test::More" : "0.94",
+            "perl" : "5.010001"
          }
       }
    },
    "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
-         "web" : "https://github.com/plicease/test-clustericious-cluster/issues"
+         "web" : "https://github.com/plicease/Test-Clustericious-Cluster/issues"
       },
-      "homepage" : "http://perl.wdlabs.com/Test-Clustericious-Cluster/",
+      "homepage" : "http://perl.wdlabs.com/Test-Clustericious-Cluster",
       "repository" : {
          "type" : "git",
-         "url" : "git://github.com/plicease/test-clustericious-cluster.git",
-         "web" : "https://github.com/plicease/test-clustericious-cluster"
+         "url" : "git://github.com/plicease/Test-Clustericious-Cluster.git",
+         "web" : "https://github.com/plicease/Test-Clustericious-Cluster"
       }
    },
-   "version" : "0.16"
+   "version" : "0.17"
 }
 

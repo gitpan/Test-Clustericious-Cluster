@@ -49,7 +49,8 @@ $t->get_ok("$url[0]/foo")
 my $tx = $t->ua->get("$url[1]/foo");
 
 ok !$tx->success, "GET $url[1]/foo [connection refused]";
-my($error, $code) = $tx->error;
+my $error = $tx->error->{message};
+my $code  = $tx->error->{code};
 ok $error, "error = $error";
 $code//='';
 ok !$code, "code  = $code";
@@ -73,7 +74,7 @@ package MyApp;
 
 use strict;
 use warnings;
-use v5.10;
+use 5.010001;
 use Mojo::Base qw( Mojolicious );
 
 sub startup
