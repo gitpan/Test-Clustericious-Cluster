@@ -1,11 +1,7 @@
 Clustericious
-Clustericious::Client
-Clustericious::Config
-Clustericious::Log
 EV
 File::HomeDir
 Module::Build
-Mojo::ByteStream
 Mojolicious
-Mojolicious::Lite
+PlugAuth
 Test::More

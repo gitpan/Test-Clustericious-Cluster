@@ -4,7 +4,7 @@
       "Graham Ollis <plicease@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 5.027, CPAN::Meta::Converter version 2.143240",
+   "generated_by" : "Dist::Zilla version 5.029, CPAN::Meta::Converter version 2.143240",
    "license" : [
       "perl_5"
    ],
@@ -27,19 +27,16 @@
       },
       "runtime" : {
          "recommends" : {
-            "EV" : "0"
+            "EV" : "0",
+            "PlugAuth" : "0.28"
          },
          "requires" : {
             "File::HomeDir" : "0.91",
-            "Mojo::ByteStream" : "0",
             "Mojolicious" : "5.0",
             "perl" : "5.010001"
          },
          "suggests" : {
-            "Clustericious" : "0.9931",
-            "Clustericious::Client" : "0",
-            "Clustericious::Config" : "0.22",
-            "Clustericious::Log" : "0"
+            "Clustericious" : "0.9941"
          }
       },
       "test" : {
@@ -47,7 +44,6 @@
             "EV" : "0"
          },
          "requires" : {
-            "Mojolicious::Lite" : "0",
             "Test::More" : "0.94",
             "perl" : "5.010001"
          }
@@ -65,6 +61,6 @@
          "web" : "https://github.com/plicease/Test-Clustericious-Cluster"
       }
    },
-   "version" : "0.17"
+   "version" : "0.18"
 }
 

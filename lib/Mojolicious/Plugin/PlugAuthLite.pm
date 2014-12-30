@@ -5,7 +5,7 @@ use Mojo::ByteStream qw( b );
 use 5.010001;
 
 # ABSTRACT: Add a minimal PlugAuth server to your Mojolicious application.
-our $VERSION = '0.17'; # VERSION
+our $VERSION = '0.18'; # VERSION
 
 
 sub register
@@ -88,7 +88,7 @@ Mojolicious::Plugin::PlugAuthLite - Add a minimal PlugAuth server to your Mojoli
 
 =head1 VERSION
 
-version 0.17
+version 0.18
 
 =head1 SYNOPSIS
 
